@@ -1,100 +1,133 @@
 # Bengali NLP: Sentiment & Emotion Analysis
 
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-Classical%20ML-orange)
+![Status](https://img.shields.io/badge/Status-Phase%202%20Complete-green)
+![Next](https://img.shields.io/badge/Next-BanglaBERT-purple)
+
 ## 📌 Project Overview
 
-End-to-end Bengali NLP project for **Sentiment** and **Emotion** classification using Classical ML — with Deep Learning and Transformer models planned for upcoming phases.
+End-to-end Bengali NLP pipeline for **Sentiment** (5-class) and **Emotion** (5-class) classification.  
+Built on a real-world Bengali social media dataset with full EDA, text preprocessing, feature extraction, and classical ML modeling.
 
-The project covers the full pipeline: raw data ingestion → EDA → text preprocessing → feature extraction → model training & evaluation.
+**Current Phase:** Classical ML baseline complete (Logistic Regression + LinearSVC)  
+**Next Phase:** Deep Learning & BanglaBERT fine-tuning
 
 ---
 
 ## 📊 Dataset
 
-- **Source file:** `Advancing Bengali NLP for Sentiment and Emotion Dataset.xlsx`
-- **Raw rows:** 34,812 total observations
-- **After deduplication:** 5,917 unique Bengali texts
-- **After outlier removal (>300 chars):** 5,635 final samples
-- **Columns:** `Text`, `Sentiment`, `Emotion`
-- **No missing values** in the dataset
-
-### Label Classes
-
-| Task | Classes |
+| Property | Value |
 |---|---|
-| **Sentiment** (5) | Negative, Strongly Negative, Neutral, Positive, Strongly Positive |
-| **Emotion** (5) | Creepy, Bullying, Unbiased, Joyful, Surprise |
+| Source | `Advancing Bengali NLP for Sentiment and Emotion Dataset.xlsx` |
+| Raw rows | 34,812 |
+| After deduplication | 5,917 |
+| After outlier removal (>300 chars) | **5,635 (final)** |
+| Columns | `Text`, `Sentiment`, `Emotion` |
+| Missing values | None |
 
 ### Class Distribution
 
-**Sentiment** (relatively balanced):
-- Negative: 1,384 (23.4%)
-- Positive: 1,254 (21.2%)
-- Strongly Negative: 1,215 (20.5%)
-- Neutral: 1,071 (18.1%)
-- Strongly Positive: 993 (16.8%)
+**Sentiment** — relatively balanced:
 
-**Emotion** (imbalanced):
-- Creepy: 1,915 (32.4%)
-- Joyful: 1,655 (28.0%)
-- Unbiased: 1,351 (22.8%)
-- Bullying: 598 (10.1%)
-- Surprise: 398 (6.7%)
+| Class | Count | % |
+|---|---|---|
+| Negative | 1,384 | 23.4% |
+| Positive | 1,254 | 21.2% |
+| Strongly Negative | 1,215 | 20.5% |
+| Neutral | 1,071 | 18.1% |
+| Strongly Positive | 993 | 16.8% |
+
+**Emotion** — imbalanced (requires special handling):
+
+| Class | Count | % |
+|---|---|---|
+| Creepy | 1,915 | 32.4% |
+| Joyful | 1,655 | 28.0% |
+| Unbiased | 1,351 | 22.8% |
+| Bullying | 598 | 10.1% |
+| Surprise | 398 | 6.7% ⚠️ |
 
 ---
 
 ## 🗂️ Project Structure
 
 ```
-Notebooks/
-├── Bengali_NLP_Sentiment_Emotion_EDA.ipynb       ← EDA
-└── Bengali_NLP_Preprocessing_Model.ipynb         ← Preprocessing + Classical ML Models
+Bengali-NLP-Sentiment-Emotion/
+│
+├── Notebooks/
+│   ├── Bengali_NLP_Sentiment_Emotion_EDA.ipynb        ← Phase 1: EDA
+│   └── Bengali_NLP_Preprocessing_Model.ipynb          ← Phase 2: Preprocessing + Classical ML
+│
+├── data/
+│   └── Advancing Bengali NLP for Sentiment and Emotion Dataset.xlsx
+│
+└── README.md
 ```
 
 ---
 
-## 🔬 Notebooks Summary
+## 🔬 Pipeline
 
-### 1. `Bengali_NLP_Sentiment_Emotion_EDA.ipynb` — EDA
+### Phase 1 — EDA (`Bengali_NLP_Sentiment_Emotion_EDA.ipynb`)
 
-Key steps performed:
-- Dataset loading and initial inspection
+- Dataset loading & structure inspection
 - Duplicate removal: 34,812 → 5,917 rows
-- Label standardization (whitespace trimming, typo fix: `Joyfull` → `Joyful`)
-- Text length & word count distribution analysis (most texts < 100 chars, < 10 words)
-- Outlier removal: texts > 300 characters removed (5,917 → 5,635 rows)
-- Sentiment vs Emotion cross-tabulation & heatmap analysis
-- Bengali Word Cloud visualization (NotoSerifBengali font)
+- Label standardization (`Joyfull` → `Joyful`, whitespace cleanup)
+- Text length & word count distribution (most texts < 100 chars, < 10 words)
+- Outlier removal: texts > 300 characters (5,917 → 5,635)
+- Sentiment vs Emotion cross-tabulation & heatmap
+- Bengali Word Cloud (NotoSerifBengali font)
 
-**Key EDA Insight:** Strong semantic alignment between labels — Strongly Negative → Creepy/Bullying; Positive/Strongly Positive → Joyful; Neutral → Unbiased/Surprise.
+**Key Finding:** Strong semantic alignment — Strongly Negative → Creepy/Bullying; Positive → Joyful; Neutral → Unbiased/Surprise.
 
 ---
 
-### 2. `Bengali_NLP_Preprocessing_Model.ipynb` — Preprocessing + Classical ML
+### Phase 2 — Preprocessing + Classical ML (`Bengali_NLP_Preprocessing_Model.ipynb`)
 
-**Text Preprocessing (`clean_text` function):**
-- URL removal (`http`, `www`)
-- Emoji removal (Unicode range `\U0001F300–\U0001FFFF`)
-- Retain only Bengali Unicode characters (`\u0980–\u09FF`)
+**Text Cleaning (`clean_text`):**
+- Remove URLs, emojis, English characters/digits
+- Retain only Bengali Unicode (`\u0980–\u09FF`)
 - Remove Bengali punctuation (`।`, `৷`) and Bengali numerals (`০–৯`)
-- Remove English digits and extra whitespace
+- Normalize whitespace
 
 **Feature Extraction:**
-- `TfidfVectorizer` with `max_features=5000`, `min_df=2`, `ngram_range=(1,2)`
-- Output shape: sparse matrix over Bengali bigrams/unigrams
+- `TfidfVectorizer`: `max_features=5000`, `min_df=2`, `ngram_range=(1,2)`
 
-**Models Trained:**
+**Models:** Logistic Regression, LinearSVC (both with `class_weight='balanced'`)
 
-| Task | Model | Notes |
-|---|---|---|
-| Sentiment | Logistic Regression | `max_iter=1000` |
-| Sentiment | LinearSVC | `max_iter=1000` |
-| Emotion | Logistic Regression | `class_weight='balanced'` |
-| Emotion | LinearSVC | `class_weight='balanced'` |
+---
 
-**Evaluation:**
-- Classification report (precision, recall, F1) for all models
-- Confusion matrices (heatmaps: Blues for LR, Oranges for SVM)
-- Multi-class ROC curves with per-class AUC scores (LR uses `predict_proba`; SVM uses `decision_function`)
+## 📈 Results
+
+### Emotion Classification
+
+| Model | Accuracy | Macro F1 | Weighted F1 |
+|---|---|---|---|
+| Logistic Regression | 0.64 | **0.58** | 0.65 |
+| LinearSVC | 0.64 | 0.57 | 0.64 |
+
+**Per-class F1 — Emotion:**
+
+| Emotion | Support | LR F1 | SVM F1 |
+|---|---|---|---|
+| Creepy | 359 | **0.78** | 0.77 |
+| Joyful | 323 | 0.70 | **0.72** |
+| Unbiased | 252 | **0.55** | 0.54 |
+| Bullying | 116 | **0.45** | 0.42 |
+| Surprise | 77 | **0.41** | 0.40 |
+
+**ROC-AUC — Emotion (Logistic Regression):**
+
+| Emotion | AUC |
+|---|---|
+| Creepy | 0.92 |
+| Joyful | 0.90 |
+| Bullying | 0.84 |
+| Surprise | 0.83 |
+| Unbiased | 0.81 |
+
+> **Note:** Macro F1 = 0.58 is consistent with Bengali NLP literature for classical ML baselines on multi-class emotion tasks. Minority classes (Surprise, Bullying) suffer from data scarcity — a known limitation of TF-IDF + classical ML on low-resource languages.
 
 ---
 
@@ -104,17 +137,36 @@ Key steps performed:
 |---|---|
 | Data | `pandas`, `numpy` |
 | Visualization | `matplotlib`, `seaborn`, `wordcloud` |
-| NLP / Features | `scikit-learn` (TfidfVectorizer, LabelEncoder) |
-| ML Models | `scikit-learn` (LogisticRegression, LinearSVC) |
-| Evaluation | `scikit-learn` (classification_report, confusion_matrix, roc_curve, auc) |
-| Font | NotoSerifBengali (for Bengali Word Cloud) |
+| Features | `scikit-learn` — TfidfVectorizer, LabelEncoder |
+| Models | `scikit-learn` — LogisticRegression, LinearSVC |
+| Evaluation | `scikit-learn` — classification_report, confusion_matrix, roc_curve, auc |
 
 ---
 
-## 🔜 Upcoming
+## 🔜 Next Steps (Planned)
 
-- [ ] Deep Learning Models (LSTM, BiLSTM)
-- [ ] Transformer Models (BanglaBERT)
-- [ ] Bengali Stopword Removal
-- [ ] Hyperparameter Tuning
-- [ ] Model Comparison Dashboard
+### Phase 3 — Stronger Classical ML Baseline
+- [ ] **Bengali stopword removal** — stopwords currently dominate TF-IDF features, hurting Unbiased class most
+- [ ] **SMOTE / oversampling** — fix Surprise (6.7%) and Bullying (10.1%) minority class imbalance
+- [ ] **Add Random Forest + XGBoost** — complete the classical ML comparison
+- [ ] **5-fold cross-validation** — replace single 80/20 split for reliable evaluation
+- [ ] **Hyperparameter tuning** — GridSearchCV on C, ngram_range, max_features
+
+### Phase 4 — Deep Learning
+- [ ] **Bengali fastText embeddings** — richer word representations than TF-IDF
+- [ ] **BiLSTM** — capture sequential context in Bengali sentences
+- [ ] **CNN + BiLSTM hybrid** — local + sequential feature extraction
+
+### Phase 5 — Transformer (Main Goal)
+- [ ] **BanglaBERT fine-tuning** — expected to push Macro F1 from 0.58 → 0.75+
+- [ ] **Multi-task learning** — train Sentiment + Emotion jointly (semantically correlated)
+- [ ] **Full benchmark table** — unified comparison across all phases
+
+---
+
+## ⚠️ Known Limitations
+
+- No Bengali stopword removal applied before modeling (planned Phase 3)
+- Single train/test split used — results may vary with cross-validation
+- Minority classes (Surprise F1=0.41, Bullying F1=0.45) need oversampling
+- TF-IDF cannot capture morphological richness of Bengali — transformer needed for ceiling performance
